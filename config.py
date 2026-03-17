@@ -1,6 +1,7 @@
 API_BASE_URL = "https://api.company-information.service.gov.uk"
 SEARCH_ENDPOINT = "/search/companies"
 COMPANY_ENDPOINT = "/company/{company_number}"
+ADVANCED_SEARCH_ENDPOINT = "/advanced-search/companies"
 
 RATE_LIMIT_REQUESTS = 600
 RATE_LIMIT_WINDOW = 300  # seconds (5 minutes)
