@@ -64,12 +64,52 @@ def analyse(df, top_n=20):
         )
     print("=" * 80)
 
+    # Coverage analysis: how many unique merchants are covered by different code sets?
+    _coverage_analysis(df)
+
     # Save full frequency table
     out_path = "data/sic_frequency.csv"
     code_counts.to_csv(out_path, index=False)
     print(f"\nFull frequency table saved to {out_path}")
 
     return code_counts
+
+
+def _coverage_analysis(df):
+    """Show how many unique merchants are covered by top 3 vs all 12 plumbing codes."""
+    sic_series = df["sic_codes"].fillna("").astype(str)
+    total_with_sic = (sic_series.str.strip().ne("")).sum()
+
+    top_3 = {"46740", "43220", "47520"}
+    all_12 = {
+        "46740", "43220", "47520", "46130", "46730", "47540",
+        "25210", "33200", "43290", "35300", "36000", "37000",
+    }
+
+    def count_merchants_with_any(codes):
+        count = 0
+        for codes_str in sic_series:
+            merchant_codes = {c.strip() for c in codes_str.split(",") if c.strip()}
+            if merchant_codes & codes:
+                count += 1
+        return count
+
+    top3_count = count_merchants_with_any(top_3)
+    all12_count = count_merchants_with_any(all_12)
+    lost = all12_count - top3_count
+
+    print("\n" + "=" * 80)
+    print("COVERAGE ANALYSIS: Top 3 vs All 12 plumbing codes")
+    print("=" * 80)
+    print(f"Total merchants with any SIC data:        {total_with_sic}")
+    print(f"Merchants with top 3 codes:               {top3_count}  ({top3_count/total_with_sic*100:.1f}%)")
+    print(f"  - 46740 (wholesale plumbing/heating)")
+    print(f"  - 43220 (plumbing installation)")
+    print(f"  - 47520 (retail hardware)")
+    print(f"Merchants with any of 12 plumbing codes:  {all12_count}  ({all12_count/total_with_sic*100:.1f}%)")
+    print(f"Merchants LOST by using only top 3:       {lost}  ({lost/total_with_sic*100:.1f}%)")
+    print(f"Merchants with NO plumbing code at all:   {total_with_sic - all12_count}  ({(total_with_sic - all12_count)/total_with_sic*100:.1f}%)")
+    print("=" * 80)
 
 
 def main():
