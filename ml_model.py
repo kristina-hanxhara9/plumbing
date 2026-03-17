@@ -12,7 +12,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-from config import DEFAULT_CONFIDENCE_THRESHOLD
+from config import DEFAULT_CONFIDENCE_THRESHOLD, PLUMBING_SIC_CODES
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
@@ -66,6 +66,9 @@ def prepare_features(df, name_col=0, postcode_col=4, fit=True,
 def prepare_labels(df, sic_col="sic_codes", fit=True, binarizer=None):
     """Build multi-label binary matrix from SIC codes.
 
+    Only keeps plumbing-relevant SIC codes (defined in config.PLUMBING_SIC_CODES).
+    All other codes are filtered out to reduce noise and improve model accuracy.
+
     Args:
         df: DataFrame with sic_codes column (comma-separated strings).
         sic_col: Name of the SIC codes column.
@@ -80,7 +83,8 @@ def prepare_labels(df, sic_col="sic_codes", fit=True, binarizer=None):
         df[sic_col]
         .fillna("")
         .astype(str)
-        .apply(lambda x: [s.strip() for s in x.split(",") if s.strip()])
+        .apply(lambda x: [s.strip() for s in x.split(",")
+                          if s.strip() and s.strip() in PLUMBING_SIC_CODES])
     )
 
     if fit:
@@ -106,18 +110,25 @@ def train_model(df):
     """
     # Filter to rows where we have SIC codes from the API
     train_df = df[df["sic_codes"].fillna("").astype(str).str.strip().ne("")].copy()
-    logger.info(f"Training on {len(train_df)} rows with SIC codes")
+    logger.info(f"Rows with any SIC codes: {len(train_df)}")
 
-    if len(train_df) < 5:
-        logger.warning("Too few training samples — model will be unreliable")
-
-    # Prepare features and labels
+    # Filter labels to plumbing-relevant codes only
     X, vectorizer, postcode_vectorizer = prepare_features(train_df, fit=True)
     Y, binarizer = prepare_labels(train_df, fit=True)
 
+    # Drop rows that have no plumbing-relevant SIC codes (all-zero label rows)
+    has_plumbing_label = Y.sum(axis=1) > 0
+    plumbing_count = has_plumbing_label.sum()
+    logger.info(
+        f"Rows with plumbing-relevant SIC codes: {plumbing_count}/{len(train_df)} "
+        f"(filtered from {263} total unique codes to {len(binarizer.classes_)} plumbing codes)"
+    )
+    logger.info(f"Plumbing SIC codes used: {list(binarizer.classes_)}")
+
+    if plumbing_count < 5:
+        logger.warning("Too few training samples with plumbing codes — model will be unreliable")
+
     logger.info(f"Feature matrix: {X.shape}, Label matrix: {Y.shape}")
-    logger.info(f"Unique SIC codes found: {len(binarizer.classes_)}")
-    logger.info(f"SIC codes: {list(binarizer.classes_)}")
 
     # Train/test split if enough data
     if len(train_df) >= 20:

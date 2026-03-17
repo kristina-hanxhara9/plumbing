@@ -1,6 +1,5 @@
 import argparse
 import logging
-import os
 import sys
 
 import pandas as pd
@@ -16,48 +15,6 @@ from config import DEFAULT_CONFIDENCE_THRESHOLD
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
-
-# Path to the official UK SIC 2007 condensed reference (from Companies House / ONS)
-SIC_REFERENCE_PATH = os.path.join(os.path.dirname(__file__), "data", "sic_reference.csv")
-
-
-def _load_sic_descriptions():
-    """Load SIC code descriptions from the official UK SIC 2007 reference file."""
-    if not os.path.exists(SIC_REFERENCE_PATH):
-        logger.warning(f"SIC reference file not found at {SIC_REFERENCE_PATH}")
-        return {}
-    ref = pd.read_csv(SIC_REFERENCE_PATH, dtype=str)
-    return dict(zip(ref["sic_code"].str.strip(), ref["sic_description"].str.strip()))
-
-
-def _analyse_sic_frequency(df):
-    """Analyse which SIC codes appear most frequently in the API results.
-
-    Splits comma-separated SIC codes, counts occurrences, and returns
-    a ranked DataFrame with code, count, percentage, and description.
-    """
-    # Use actual API SIC codes, not predictions
-    sic_series = df["sic_codes"].fillna("").astype(str)
-    all_codes = []
-    for codes_str in sic_series:
-        for code in codes_str.split(","):
-            code = code.strip()
-            if code:
-                all_codes.append(code)
-
-    if not all_codes:
-        return pd.DataFrame(columns=["sic_code", "count", "percentage", "description"])
-
-    code_counts = pd.Series(all_codes).value_counts().reset_index()
-    code_counts.columns = ["sic_code", "count"]
-    total_companies = (sic_series.str.strip().ne("")).sum()
-    code_counts["percentage"] = (code_counts["count"] / total_companies * 100).round(1)
-    sic_descriptions = _load_sic_descriptions()
-    code_counts["description"] = code_counts["sic_code"].map(
-        lambda x: sic_descriptions.get(x, sic_descriptions.get(x.lstrip("0"), ""))
-    )
-
-    return code_counts
 
 
 def main():
@@ -132,9 +89,6 @@ def main():
     active = (df["company_status"] == "active").sum() if "company_status" in df.columns else 0
     has_predictions = (df["max_confidence"] > 0).sum()
 
-    # Analyse SIC code frequency from actual API data
-    sic_frequency = _analyse_sic_frequency(df)
-
     print("\n" + "=" * 60)
     print("SUMMARY")
     print("=" * 60)
@@ -143,28 +97,11 @@ def main():
     print(f"Active companies:         {active}")
     print(f"With SIC predictions:     {has_predictions}")
     print(f"Unique SIC codes found:   {len(binarizer.classes_)}")
+    print(f"SIC codes:                {list(binarizer.classes_)}")
     print(f"Confidence threshold:     {args.threshold}")
     print(f"Output file:              {args.output}")
     print(f"Model saved to:           {args.model_path}")
     print("=" * 60)
-
-    # Show top SIC codes by frequency
-    print("\n" + "=" * 60)
-    print("TOP SIC CODES (most common among plumbing merchants)")
-    print("=" * 60)
-    print(f"{'SIC Code':<12} {'Count':<8} {'% of merchants':<16} {'Description'}")
-    print("-" * 60)
-    for _, row in sic_frequency.head(20).iterrows():
-        print(
-            f"{row['sic_code']:<12} {row['count']:<8} "
-            f"{row['percentage']:<16.1f} {row['description']}"
-        )
-    print("=" * 60)
-
-    # Save SIC frequency analysis to CSV
-    sic_freq_path = args.output.replace(".csv", "_sic_frequency.csv")
-    sic_frequency.to_csv(sic_freq_path, index=False)
-    logger.info(f"SIC code frequency analysis saved to {sic_freq_path}")
 
 
 if __name__ == "__main__":
