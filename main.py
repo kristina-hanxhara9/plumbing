@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 import sys
 
 import pandas as pd
@@ -16,66 +17,17 @@ from config import DEFAULT_CONFIDENCE_THRESHOLD
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-# Common SIC code descriptions (UK Companies House)
-SIC_DESCRIPTIONS = {
-    "43220": "Plumbing, heat and air-conditioning installation",
-    "46740": "Wholesale of hardware, plumbing and heating equipment",
-    "47523": "Retail sale of hardware, paints and glass",
-    "47521": "Retail sale of hardware",
-    "47520": "Retail sale of hardware, paints and glass",
-    "47530": "Retail sale of carpets, rugs, wall and floor coverings",
-    "43210": "Electrical installation",
-    "43290": "Other construction installation",
-    "43310": "Plastering",
-    "43320": "Joinery installation",
-    "43330": "Floor and wall covering",
-    "43341": "Painting",
-    "43342": "Glazing",
-    "43390": "Other building completion and finishing",
-    "43910": "Roofing activities",
-    "43991": "Scaffold erection",
-    "43999": "Other specialised construction activities n.e.c.",
-    "43120": "Site preparation",
-    "41100": "Development of building projects",
-    "41201": "Construction of commercial buildings",
-    "41202": "Construction of domestic buildings",
-    "42110": "Construction of roads and motorways",
-    "42910": "Construction of water projects",
-    "42990": "Construction of other civil engineering projects",
-    "46130": "Agents involved in sale of timber and building materials",
-    "46730": "Wholesale of wood, construction materials and sanitary equipment",
-    "46760": "Wholesale of other intermediate products",
-    "46900": "Non-specialised wholesale trade",
-    "47110": "Retail sale in non-specialised stores with food",
-    "47190": "Other retail sale in non-specialised stores",
-    "47540": "Retail sale of electrical household appliances",
-    "47599": "Retail sale of furniture, lighting and household articles n.e.c.",
-    "25210": "Manufacture of central heating radiators and boilers",
-    "25290": "Manufacture of other tanks, reservoirs and containers of metal",
-    "28220": "Manufacture of lifting and handling equipment",
-    "33120": "Repair of machinery",
-    "33200": "Installation of industrial machinery and equipment",
-    "35300": "Steam and air conditioning supply",
-    "36000": "Water collection, treatment and supply",
-    "37000": "Sewerage",
-    "38110": "Collection of non-hazardous waste",
-    "45200": "Maintenance and repair of motor vehicles",
-    "68100": "Buying and selling of own real estate",
-    "68201": "Renting and operating of Housing Association real estate",
-    "68209": "Other letting and operating of own or leased real estate",
-    "68310": "Real estate agencies",
-    "68320": "Management of real estate on a fee or contract basis",
-    "70100": "Activities of head offices",
-    "70221": "Financial management",
-    "70229": "Management consultancy activities other than financial management",
-    "81100": "Combined facilities support activities",
-    "81210": "General cleaning of buildings",
-    "81221": "Window cleaning services",
-    "81222": "Specialised cleaning services",
-    "81299": "Other cleaning activities",
-    "82990": "Other business support service activities n.e.c.",
-    "96090": "Other service activities n.e.c.",
-}
+# Path to the official UK SIC 2007 condensed reference (from Companies House / ONS)
+SIC_REFERENCE_PATH = os.path.join(os.path.dirname(__file__), "data", "sic_reference.csv")
+
+
+def _load_sic_descriptions():
+    """Load SIC code descriptions from the official UK SIC 2007 reference file."""
+    if not os.path.exists(SIC_REFERENCE_PATH):
+        logger.warning(f"SIC reference file not found at {SIC_REFERENCE_PATH}")
+        return {}
+    ref = pd.read_csv(SIC_REFERENCE_PATH, dtype=str)
+    return dict(zip(ref["sic_code"].str.strip(), ref["sic_description"].str.strip()))
 
 
 def _analyse_sic_frequency(df):
@@ -100,8 +52,9 @@ def _analyse_sic_frequency(df):
     code_counts.columns = ["sic_code", "count"]
     total_companies = (sic_series.str.strip().ne("")).sum()
     code_counts["percentage"] = (code_counts["count"] / total_companies * 100).round(1)
+    sic_descriptions = _load_sic_descriptions()
     code_counts["description"] = code_counts["sic_code"].map(
-        lambda x: SIC_DESCRIPTIONS.get(x, "")
+        lambda x: sic_descriptions.get(x, sic_descriptions.get(x.lstrip("0"), ""))
     )
 
     return code_counts
