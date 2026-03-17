@@ -123,6 +123,58 @@ def fetch_companies_by_sic(sic_code, api_key, company_status="active"):
     return all_companies
 
 
+def _normalise_name(name):
+    """Normalise company name for chain matching.
+
+    Strips common suffixes (LTD, LIMITED, PLC, etc.), lowercases,
+    and collapses whitespace so that 'Acme Plumbing Ltd' and
+    'ACME PLUMBING LIMITED' are treated as the same chain.
+    """
+    import re
+    name = name.strip().upper()
+    # Remove common company suffixes
+    name = re.sub(
+        r"\b(LIMITED|LTD|PLC|LLP|INC|INCORPORATED|CORP|CORPORATION)\b\.?",
+        "", name
+    )
+    # Remove punctuation and collapse whitespace
+    name = re.sub(r"[^A-Z0-9\s]", "", name)
+    name = re.sub(r"\s+", " ", name).strip()
+    return name
+
+
+def detect_chains(df):
+    """Detect chain businesses: same normalised name, different postcodes.
+
+    Adds columns:
+        is_chain (bool): True if the company name appears at multiple postcodes.
+        chain_name (str): The normalised name used for grouping.
+        chain_branch_count (int): How many branches this chain has.
+    """
+    df = df.copy()
+    df["chain_name"] = df["company_name"].fillna("").apply(_normalise_name)
+
+    # Group by normalised name, count unique postcodes
+    chain_stats = (
+        df.groupby("chain_name")["postal_code"]
+        .nunique()
+        .reset_index()
+        .rename(columns={"postal_code": "chain_branch_count"})
+    )
+
+    df = df.merge(chain_stats, on="chain_name", how="left")
+    df["is_chain"] = df["chain_branch_count"] > 1
+
+    chain_count = df.loc[df["is_chain"], "chain_name"].nunique()
+    chain_branches = df["is_chain"].sum()
+    logger.info(
+        f"Chain detection: {chain_count} chains found "
+        f"({chain_branches} branches total)"
+    )
+
+    return df
+
+
 def fetch_all_plumbing_companies(sic_codes, api_key):
     """Fetch active companies for all given SIC codes."""
     all_results = []
@@ -146,6 +198,9 @@ def fetch_all_plumbing_companies(sic_codes, api_key):
     after = len(df)
     if before != after:
         logger.info(f"Removed {before - after} duplicates — {after} unique companies")
+
+    # Chain detection: same normalised name but different postcodes = chain
+    df = detect_chains(df)
 
     return df
 
@@ -198,6 +253,24 @@ def main():
     for sic in sic_codes:
         count = df["sic_codes"].str.contains(sic, na=False).sum()
         print(f"  SIC {sic}:               {count} companies")
+    if "is_chain" in df.columns:
+        chain_names = df.loc[df["is_chain"], "chain_name"].nunique()
+        chain_branches = df["is_chain"].sum()
+        independent = (~df["is_chain"]).sum()
+        print(f"Chain businesses:         {chain_names} chains ({chain_branches} branches)")
+        print(f"Independent businesses:   {independent}")
+        # Show top chains
+        if chain_names > 0:
+            top = (
+                df.loc[df["is_chain"]]
+                .groupby("chain_name")["chain_branch_count"]
+                .first()
+                .sort_values(ascending=False)
+                .head(10)
+            )
+            print(f"Top chains:")
+            for name, count in top.items():
+                print(f"  {name}: {count} branches")
     print(f"Output file:              {args.output}")
     print("=" * 60)
 
