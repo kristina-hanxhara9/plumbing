@@ -67,6 +67,9 @@ def analyse(df, top_n=20):
     # Coverage analysis: how many unique merchants are covered by different code sets?
     _coverage_analysis(df)
 
+    # Keyword analysis on merchants with no plumbing SIC code
+    _keyword_analysis(df)
+
     # Save full frequency table
     out_path = "data/sic_frequency.csv"
     code_counts.to_csv(out_path, index=False)
@@ -109,6 +112,88 @@ def _coverage_analysis(df):
     print(f"Merchants with any of 12 plumbing codes:  {all12_count}  ({all12_count/total_with_sic*100:.1f}%)")
     print(f"Merchants LOST by using only top 3:       {lost}  ({lost/total_with_sic*100:.1f}%)")
     print(f"Merchants with NO plumbing code at all:   {total_with_sic - all12_count}  ({(total_with_sic - all12_count)/total_with_sic*100:.1f}%)")
+    print("=" * 80)
+
+
+def _keyword_analysis(df):
+    """Check how many merchants without plumbing SIC codes have plumbing keywords in name."""
+    import re
+
+    plumbing_codes = {"46740", "43220", "47520"}
+
+    # Plumbing-related keywords to search for in company names
+    PLUMBING_KEYWORDS = [
+        "plumb", "heating", "bathroom", "boiler", "pipe", "radiator",
+        "sanitary", "drain", "water", "hvac", "thermal", "gas",
+        "central heating", "underfloor", "shower", "tap", "valve",
+        "copper", "solder", "cistern", "flush", "waste", "soil",
+        "merchant", "supply", "supplies", "wholesale", "trade",
+        "builders", "hardware", "ironmong",
+    ]
+
+    sic_series = df["sic_codes"].fillna("").astype(str)
+    names = df.iloc[:, 0].fillna("").astype(str)
+
+    # Split merchants into: has plumbing SIC vs no plumbing SIC
+    has_plumbing_sic = []
+    no_plumbing_sic = []
+    for i, codes_str in enumerate(sic_series):
+        merchant_codes = {c.strip() for c in codes_str.split(",") if c.strip()}
+        if merchant_codes & plumbing_codes:
+            has_plumbing_sic.append(i)
+        elif codes_str.strip():  # has SIC data but no plumbing code
+            no_plumbing_sic.append(i)
+
+    def find_keywords(name):
+        name_lower = name.lower()
+        return [kw for kw in PLUMBING_KEYWORDS if kw in name_lower]
+
+    # Analyse the no-plumbing-SIC group
+    no_sic_names = names.iloc[no_plumbing_sic]
+    with_keywords = []
+    without_keywords = []
+    keyword_counts = {}
+
+    for idx, name in no_sic_names.items():
+        found = find_keywords(name)
+        if found:
+            with_keywords.append((name, found))
+            for kw in found:
+                keyword_counts[kw] = keyword_counts.get(kw, 0) + 1
+        else:
+            without_keywords.append(name)
+
+    # Also check the plumbing-SIC group for comparison
+    sic_names = names.iloc[has_plumbing_sic]
+    sic_with_kw = sum(1 for name in sic_names if find_keywords(name))
+
+    total_no_sic = len(no_plumbing_sic)
+
+    print("\n" + "=" * 80)
+    print("KEYWORD ANALYSIS: Merchants WITHOUT plumbing SIC codes")
+    print("=" * 80)
+    print(f"Merchants without plumbing SIC code:      {total_no_sic}")
+    print(f"  With plumbing keywords in name:         {len(with_keywords)}  ({len(with_keywords)/total_no_sic*100:.1f}%)")
+    print(f"  Without any plumbing keywords:          {len(without_keywords)}  ({len(without_keywords)/total_no_sic*100:.1f}%)")
+    print()
+    print(f"For comparison — merchants WITH plumbing SIC code:")
+    print(f"  With plumbing keywords in name:         {sic_with_kw}/{len(has_plumbing_sic)}  ({sic_with_kw/max(len(has_plumbing_sic),1)*100:.1f}%)")
+
+    # Show keyword frequency
+    sorted_kw = sorted(keyword_counts.items(), key=lambda x: x[1], reverse=True)
+    print()
+    print(f"{'Keyword':<20} {'Count':<8} {'% of no-SIC merchants'}")
+    print("-" * 50)
+    for kw, count in sorted_kw:
+        print(f"{kw:<20} {count:<8} {count/total_no_sic*100:.1f}%")
+
+    # Show some example names with NO keywords (the truly unidentifiable ones)
+    print()
+    print(f"Sample merchants with NO plumbing SIC and NO keywords ({len(without_keywords)} total):")
+    for name in without_keywords[:15]:
+        print(f"  - {name}")
+    if len(without_keywords) > 15:
+        print(f"  ... and {len(without_keywords) - 15} more")
     print("=" * 80)
 
 
