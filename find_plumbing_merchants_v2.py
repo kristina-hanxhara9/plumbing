@@ -40,19 +40,12 @@ MAX_RESULTS = 5000
 TOP_SIC_CODES = ["46740", "43220", "47520"]
 TOP_KEYWORDS = ["plumb", "heating"]
 
-# All 12 plumbing-relevant SIC codes (broader set for confidence scoring)
-ALL_PLUMBING_SIC = {
-    "46740", "43220", "47520", "46130", "46730", "47540",
-    "25210", "33200", "43290", "35300", "36000", "37000",
-}
-
 # Weights for confidence scoring (sum to ~1.0 at maximum)
 CONFIDENCE_WEIGHTS = {
-    "has_top3_sic": 0.35,       # Has one of the top 3 SIC codes
-    "has_other_plumb_sic": 0.10, # Has another plumbing-relevant SIC code
+    "has_top3_sic": 0.40,       # Has one of the top 3 SIC codes
     "name_plumb": 0.35,         # Name contains "plumb"
     "name_heating": 0.15,       # Name contains "heating"
-    "name_bathroom": 0.05,      # Name contains "bathroom"
+    "name_bathroom": 0.10,      # Name contains "bathroom"
 }
 
 
@@ -317,8 +310,6 @@ def compute_confidence(row):
     # SIC code signals
     if sic_set & set(TOP_SIC_CODES):
         score += CONFIDENCE_WEIGHTS["has_top3_sic"]
-    if sic_set & (ALL_PLUMBING_SIC - set(TOP_SIC_CODES)):
-        score += CONFIDENCE_WEIGHTS["has_other_plumb_sic"]
 
     # Name keyword signals
     if "plumb" in name_lower:
