@@ -15,8 +15,6 @@ import sys
 
 import pandas as pd
 
-from config import PLUMBING_SIC_CODES
-
 # Top 3 plumbing SIC codes used for the SIC-identifiable bucket
 TOP_3_SIC = {"46740", "43220", "47520"}
 
