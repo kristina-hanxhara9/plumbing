@@ -19,18 +19,25 @@ Usage:
 
     # Limit company lookups (for testing)
     python fetch_market_data_v3.py -i data/plumbing_merchants_v3.xlsx --max-companies 50
+
+    # If you get SSL errors (corporate proxy / certificate issues):
+    python fetch_market_data_v3.py --no-ssl-verify
 """
 import argparse
 import io
 import logging
 import os
 import time
+import urllib3
 
 import pandas as pd
 import requests
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
+
+# Global SSL verification setting (toggled by --no-ssl-verify)
+SSL_VERIFY = True
 
 # ---------------------------------------------------------------------------
 # SIC codes aligned with fetch_sic_codes_api.py
@@ -102,7 +109,7 @@ def fetch_ons_business_data():
 def _fetch_ons_via_api():
     """Try fetching from the ONS beta API."""
     url = f"{ONS_API_BASE}/datasets/{ONS_DATASET_ID}/editions"
-    resp = requests.get(url, timeout=30)
+    resp = requests.get(url, timeout=30, verify=SSL_VERIFY)
     if resp.status_code != 200:
         logger.warning(f"ONS editions endpoint returned {resp.status_code}")
         return None
@@ -115,7 +122,7 @@ def _fetch_ons_via_api():
     edition_id = latest.get("edition", "")
 
     versions_url = f"{ONS_API_BASE}/datasets/{ONS_DATASET_ID}/editions/{edition_id}/versions"
-    resp = requests.get(versions_url, timeout=30)
+    resp = requests.get(versions_url, timeout=30, verify=SSL_VERIFY)
     if resp.status_code != 200:
         return None
 
@@ -130,14 +137,17 @@ def _fetch_ons_via_api():
         return None
 
     logger.info(f"Downloading ONS data from API: {csv_url}")
-    df = pd.read_csv(csv_url)
+    # Download via requests to respect SSL_VERIFY, then parse
+    resp = requests.get(csv_url, timeout=60, verify=SSL_VERIFY)
+    resp.raise_for_status()
+    df = pd.read_csv(io.StringIO(resp.text))
     return df
 
 
 def _fetch_ons_via_csv():
     """Direct CSV download fallback."""
     logger.info(f"Trying direct ONS CSV: {ONS_CSV_URL}")
-    resp = requests.get(ONS_CSV_URL, timeout=60)
+    resp = requests.get(ONS_CSV_URL, timeout=60, verify=SSL_VERIFY)
     resp.raise_for_status()
     df = pd.read_csv(io.StringIO(resp.text))
     return df
@@ -240,12 +250,14 @@ def _fetch_hmrc_commodity(hs_code):
         f"&$format=json"
     )
 
-    resp = requests.get(url, timeout=30, headers={"Accept": "application/json"})
+    resp = requests.get(url, timeout=30, headers={"Accept": "application/json"},
+                        verify=SSL_VERIFY)
 
     if resp.status_code == 429:
         logger.warning("HMRC rate limited -- sleeping 60s")
         time.sleep(60)
-        resp = requests.get(url, timeout=30, headers={"Accept": "application/json"})
+        resp = requests.get(url, timeout=30, headers={"Accept": "application/json"},
+                            verify=SSL_VERIFY)
 
     if resp.status_code != 200:
         logger.warning(f"HMRC API returned {resp.status_code}: {resp.text[:200]}")
@@ -299,7 +311,15 @@ IXBRL_API_BASE = "https://convert-ixbrl.co.uk/api"
 def fetch_ixbrl_metadata(company_number):
     """Check what financial data is available for a company (free endpoint)."""
     url = f"{IXBRL_API_BASE}/v2/FinancialsMetaData/{company_number}"
-    resp = requests.get(url, timeout=15, headers={"Accept": "application/json"})
+    try:
+        resp = requests.get(url, timeout=15, headers={"Accept": "application/json"},
+                            verify=SSL_VERIFY)
+    except requests.exceptions.SSLError:
+        logger.warning("SSL error connecting to convert-ixbrl.co.uk -- "
+                       "try running with --no-ssl-verify")
+        return None
+    except requests.exceptions.ConnectionError:
+        return None
 
     if resp.status_code != 200:
         return None
@@ -412,7 +432,18 @@ def main():
         "--max-companies", type=int, default=None,
         help="Limit company-level lookups (useful for testing)",
     )
+    parser.add_argument(
+        "--no-ssl-verify", action="store_true",
+        help="Disable SSL certificate verification (for corporate proxies)",
+    )
     args = parser.parse_args()
+
+    # Apply SSL setting globally
+    global SSL_VERIFY
+    if args.no_ssl_verify:
+        SSL_VERIFY = False
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        logger.warning("SSL verification disabled (--no-ssl-verify)")
 
     os.makedirs(args.output_dir, exist_ok=True)
 
