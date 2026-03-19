@@ -12,6 +12,14 @@ from ml_model import (
     save_model,
 )
 from config import DEFAULT_CONFIDENCE_THRESHOLD
+from estimate_turnover import (
+    map_accounts_to_band,
+    apply_hmrc_benchmarks,
+    apply_topsi_trends,
+    estimate_turnover,
+    load_hmrc_benchmarks,
+    fetch_topsi_data,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
@@ -40,6 +48,16 @@ def main():
         type=float,
         default=DEFAULT_CONFIDENCE_THRESHOLD,
         help=f"Confidence threshold for SIC code predictions (default: {DEFAULT_CONFIDENCE_THRESHOLD})",
+    )
+    parser.add_argument(
+        "--estimate-turnover",
+        action="store_true",
+        help="Run turnover estimation after SIC prediction (adds turnover columns)",
+    )
+    parser.add_argument(
+        "--skip-topsi",
+        action="store_true",
+        help="Skip ONS TOPSI trend data when estimating turnover",
     )
     args = parser.parse_args()
 
@@ -76,11 +94,21 @@ def main():
         max(pred.values()) if pred else 0.0 for pred in predictions
     ]
 
-    # Step 5: Save output
+    # Step 5: Turnover estimation (optional)
+    if args.estimate_turnover:
+        logger.info("Running turnover estimation...")
+        df = map_accounts_to_band(df)
+        benchmarks = load_hmrc_benchmarks()
+        df = apply_hmrc_benchmarks(df, benchmarks)
+        topsi_data = {} if args.skip_topsi else fetch_topsi_data()
+        df = apply_topsi_trends(df, topsi_data)
+        df = estimate_turnover(df)
+
+    # Step 6: Save output
     df.to_csv(args.output, index=False)
     logger.info(f"Output saved to {args.output}")
 
-    # Step 6: Save model
+    # Step 7: Save model
     save_model(model, vectorizer, pc_vectorizer, binarizer, args.model_path)
 
     # Summary
