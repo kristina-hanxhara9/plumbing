@@ -214,7 +214,10 @@ def main():
         print("Run the main pipeline first, or specify the correct path with -i")
         sys.exit(1)
 
-    df = pd.read_csv(args.input)
+    if args.input.endswith(".xlsx"):
+        df = pd.read_excel(args.input, engine="openpyxl")
+    else:
+        df = pd.read_csv(args.input)
     print(f"Loaded {len(df)} rows from {args.input}")
     analyse(df, top_n=args.top)
 
