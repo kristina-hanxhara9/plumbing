@@ -1,101 +1,101 @@
 company_name,company_number,company_status,company_type,postcode,sic_codes,predicted_sic_codes,max_confidence
-BQB Pipe & Fittings Ltd,76543051,dissolved,ltd,LE4 8TP,"43390,47190",43220,0.616
-York Commercial Services Ltd,90663907,active,ltd,NW1 6AX,49410,,0.259
-Harris & Thompson Bathroom Supplies Ltd,62315464,active,ltd,SO21 1GO,"43999,43390",43220,0.53
-Harris Valve & Fittings Ltd,02980765,liquidation,llp,NW4 2KM,47520,47520,0.916
-IMI Sanitary Ware Ltd,29470244,active,ltd,CF15 9SH,43390,43220,0.304
-QGX Pipe & Fittings Ltd,32163805,active,ltd,CF11 0XM,"47599,47190",47520,0.415
-Jones & Wright Bathroom Supplies Ltd,26475673,liquidation,plc,WC2 1RQ,"96090,47789",43220,0.539
-HSR Facilities Management Ltd,81893133,dissolved,ltd,DE11 2XI,47190,,0.197
-NKI Maintenance Group Ltd,30738898,active,ltd,YO2 8NX,45200,,0.105
-UWV Bathroom Supplies Ltd,22367172,active,ltd,NW1 7FV,"47520,46740","47520,46740",0.815
-Robinson Bathroom Centre Ltd,19892086,active,ltd,SE24 6ZU,82990,43220,0.446
-XHP Gas & Heating Ltd,41987442,active,ltd,N4 3QG,68100,43220,0.332
-KCL Bathroom Supplies Ltd,51237832,liquidation,ltd,NR2 1VC,68100,43220,0.339
-GMK Plumbers Merchant Ltd,14009833,active,ltd,BN15 0RZ,46740,46740,0.725
-VOX Sanitary Ware Ltd,61407340,active,ltd,SW9 8MG,43999,43220,0.476
-YHS Gas & Heating Ltd,65759996,administration,ltd,CH3 6EP,47190,46740,0.599
-JTG Water Systems Ltd,86704631,dissolved,ltd,LE16 0QY,"41100,43999",46740,0.431
-Stewart Facilities Management Ltd,47095437,administration,ltd,SW6 0GL,43390,,0.132
-Glasgow Home Improvement Centre Ltd,19419343,active,ltd,B1 7TE,47110,,0.114
-Baker Bathroom Centre Ltd,32510328,active,llp,LE3 6ZT,96090,43220,0.582
-Smith & Clarke Plumbing Trade Supplies Ltd,02698142,active,private-limited-guarant-nsc,B28 5QV,47110,43220,0.583
-Leicester Pipe & Fittings Ltd,99847493,active,ltd,CH2 9KA,"43220,47540","43220,47540",0.755
-Stockport Bathroom Centre Ltd,39089166,active,ltd,EH3 3RF,46740,46740,0.75
-MKR Water Systems Ltd,98197979,active,ltd,S40 8AK,68100,43220,0.526
-NZJ Valve & Fittings Ltd,40349722,active,ltd,NW6 9EB,"46740,46730","46740,46730",0.865
-Ipswich Shower & Bathroom Ltd,28542226,active,private-limited-guarant-nsc,NG19 3VG,"47110,96090",46740,0.61
-Roberts & Wilson Home Improvement Centre Ltd,46866538,dissolved,ltd,LE5 2CV,47110,,0.03
-Bolton Heating Supplies Ltd,54551839,administration,ltd,EX8 1GB,47520,47520,0.705
-Murray Bathroom Supplies Ltd,78342561,active,private-limited-guarant-nsc,NR9 7XE,68100,47520,0.534
-Plymouth Maintenance Group Ltd,38969333,active,private-limited-guarant-nsc,SE20 0UQ,43999,,0.02
-XHK Pipe & Fittings Ltd,07086345,dissolved,ltd,NR2 1GN,45200,46740,0.455
-Leicester Plumbing Supplies Ltd,89588154,active,ltd,NW2 4JN,46740,46740,0.87
-FPV Plumbing Supplies Ltd,22429110,active,ltd,S14 5CJ,"46740,43220","46740,43220",0.79
-Jones & Williams Plumbing Trade Supplies Ltd,18558317,active,ltd,N15 8SO,46740,46740,0.728
-Wilson & Baker Tap & Shower Ltd,97416275,active,private-limited-guarant-nsc,G7 9AI,68100,43220,0.571
-Evans Radiator Warehouse Ltd,26529407,active,ltd,L18 7GY,46740,46740,0.811
-Walker Commercial Services Ltd,10957701,active,ltd,LS12 4BW,45200,,0.257
-Taylor Bathroom Supplies Ltd,24966966,active,other,LS4 9LS,43220,43220,0.778
-Baker Plumbing Trade Supplies Ltd,66579548,active,llp,WC2 3BW,47520,47520,0.937
-Robinson Gas & Heating Ltd,85525678,active,ltd,SO21 6GR,"47110,43390",47520,0.302
-XEB Gas & Heating Ltd,01226999,active,private-limited-guarant-nsc,SE24 3JB,43220,43220,0.866
-Jones Shower & Bathroom Ltd,64993471,active,llp,L4 8CE,"43220,46740","43220,46740",0.849
-Manchester Sanitary Ware Ltd,36570755,active,ltd,SW3 5WW,47599,47520,0.452
-FCV Drainage Solutions Ltd,16419645,active,ltd,EC4 8ZV,45200,46740,0.545
-Derby Tap & Shower Ltd,06334035,active,ltd,DE10 8IG,"43220,47520","43220,47520",0.867
-Green & Reid Plumbing Supplies Ltd,92306093,active,ltd,CH5 5CL,46740,46740,0.813
-Ipswich Thermal Solutions Ltd,63350830,active,ltd,NW2 7DM,47190,46740,0.512
-OGM Sanitary Ware Ltd,61152969,active,ltd,LE13 3HP,"68100,49410",43220,0.489
-JZD Sanitary Ware Ltd,13201654,active,llp,S41 2UK,46740,46740,0.716
-Johnson & Mitchell Valve & Fittings Ltd,11814950,active,ltd,E5 3BK,49410,43220,0.517
-Walker Technical Services Ltd,15883373,active,ltd,NR9 4BK,43999,,0.18
-PSX Plumbers Merchant Ltd,66679047,active,plc,CF1 5FL,96090,47520,0.394
-Manchester Shower & Bathroom Ltd,93692697,active,ltd,E10 9UU,41100,47520,0.526
-Newport Plumbers Merchant Ltd,52019678,active,ltd,PL3 5JR,43220,43220,0.875
-Leicester Construction Services Ltd,20655410,active,ltd,S42 1EU,49410,,0.148
-JIR Boiler Services Ltd,45265498,active,ltd,SE13 8AC,47789,46740,0.401
-Clarke & Murray Boiler Services Ltd,69139880,dissolved,llp,G33 9FJ,47520,47520,0.74
-EGI Plumbing Merchants Ltd,44868501,active,llp,CF13 6GC,"47110,41100",46740,0.308
-Thompson Plumbing Merchants Ltd,93525827,active,ltd,LE10 4SL,"68100,47190",46740,0.575
-Smith Heating & Plumbing Ltd,31728046,active,ltd,EH3 8GR,46740,46740,0.754
-King Valve & Fittings Ltd,76387867,active,ltd,PL7 0ZP,49410,46740,0.441
-Murray Valve & Fittings Ltd,17879290,active,ltd,CH3 4NP,46740,46740,0.941
-Norwich Heating & Plumbing Ltd,17944487,active,ltd,NW2 7CX,41100,47520,0.306
-DRS Bathroom Supplies Ltd,68172238,active,ltd,WV1 6TP,49410,43220,0.31
-Mitchell & Williams Heating & Plumbing Ltd,44536830,active,ltd,PL7 2GK,47190,47520,0.573
-OSK Construction Services Ltd,55362516,active,ltd,EC4 5CV,45200,,0.073
-Hall Plumbing Merchants Ltd,49592048,active,ltd,YO4 9BU,49410,46740,0.647
-IUG Plumbing Supplies Ltd,38962005,active,private-limited-guarant-nsc,DE11 7WL,47599,43220,0.494
-Jones Sanitary Ware Ltd,54904155,active,ltd,E15 1XI,43999,47520,0.359
-Morgan & King Thermal Solutions Ltd,81099897,active,ltd,NG10 3JH,"47599,49410",43220,0.583
-Stockport Plumbers Merchant Ltd,48469942,active,llp,BN5 3WZ,46740,46740,0.903
-LIE Plumbing & Heating Wholesale Ltd,77745380,active,llp,BN2 5TS,96090,47520,0.625
-Murray Heating & Plumbing Ltd,05164775,dissolved,ltd,BS5 3DR,"43999,96090",46740,0.526
-Brown Industrial Components Ltd,83924837,active,ltd,EX7 7PK,47190,,0.065
-Sunderland Plumbers Merchant Ltd,85216001,active,ltd,EX1 9JD,82990,47520,0.664
-Morgan Heating Supplies Ltd,69064830,active,ltd,SO18 8DK,46740,46740,0.935
-DZP Plumbing & Heating Wholesale Ltd,96265438,active,ltd,CH7 1FV,82990,47520,0.345
-Reid Shower & Bathroom Ltd,52053877,active,plc,G25 6NT,"41100,41100",43220,0.62
-Williams & Wilson Bathroom Supplies Ltd,95314632,active,llp,PL1 2WO,47789,47520,0.46
-Wright & Green Plumbing Supplies Ltd,41785405,active,ltd,DE10 5ML,43220,43220,0.753
-Walker & Collins Plumbing Merchants Ltd,37361787,active,ltd,N7 5DN,43999,47520,0.605
-Brighton Plumbers Merchant Ltd,74089925,active,ltd,CF14 2BE,82990,47520,0.423
-GFY Plumbing Trade Supplies Ltd,29538251,active,ltd,SW15 2GG,"46740,47540","46740,47540",0.84
-Turner Valve & Fittings Ltd,63005415,active,ltd,PL8 7TF,47190,43220,0.52
-Cardiff Heating Supplies Ltd,82178885,active,ltd,SE21 4NG,"46740,47520","46740,47520",0.927
-RWQ Professional Services Ltd,44380275,dissolved,ltd,S29 1MQ,45200,,0.239
-Chester Heating & Plumbing Ltd,50555330,active,ltd,S3 4JY,47520,47520,0.943
-Roberts & Wilson Plumbing Merchants Ltd,73909480,active,ltd,EC1 8HR,47520,47520,0.935
-Robinson & Johnson Bathroom Centre Ltd,02250299,active,other,B5 8FG,"46740,46130","46740,46130",0.933
-Collins & Brown Sanitary Ware Ltd,14769080,dissolved,ltd,NR8 7IZ,47599,46740,0.401
-Stewart & Wilson Plumbers Merchant Ltd,89725654,dissolved,ltd,PL4 9IE,"45200,47599",46740,0.321
-GUL Gas & Heating Ltd,94494928,liquidation,other,CH8 2EF,"47520,46730","47520,46730",0.715
-Wright & Baker Thermal Solutions Ltd,40580505,active,ltd,B8 8SF,47599,47520,0.481
-Baker & Stewart Valve & Fittings Ltd,65893936,active,private-limited-guarant-nsc,DE5 5WV,"41100,43999",47520,0.335
-Morgan Thermal Solutions Ltd,29874646,active,ltd,L24 4SU,47599,46740,0.527
-Chester Plumbing & Heating Wholesale Ltd,22931511,active,ltd,SW18 3RV,"43220,43290","43220,43290",0.894
-HOR Heating & Plumbing Ltd,82390501,active,private-limited-guarant-nsc,G15 9UF,49410,47520,0.376
-MOU Facilities Management Ltd,06505975,active,private-limited-guarant-nsc,SW7 5PN,45200,,0.287
-Sheffield Valve & Fittings Ltd,50104566,active,llp,WC1 4XY,96090,46740,0.687
-DSC Commercial Services Ltd,51557040,active,ltd,S43 8CR,47789,,0.153
+NYB Development Co Ltd,89436473,active,ltd,YO5 7QA,47190,,0.3
+Swansea Plumbing Merchants Ltd,47930359,active,ltd,G15 3AF,46740,46740,0.782
+Clarke & Hall Bathroom Supplies Ltd,07818112,active,ltd,M41 6VB,46740,46740,0.783
+Baker Gas & Heating Ltd,47397338,active,ltd,N11 6PN,"82990,82990",46740,0.454
+KQF Water Systems Ltd,67354180,active,ltd,SO17 2RA,45200,46740,0.6
+Plymouth Boiler Services Ltd,41569669,active,ltd,BS5 4BB,47190,43220,0.417
+Turner & Murray Pipe & Fittings Ltd,85322033,active,ltd,B3 4UA,68100,47520,0.446
+Brown & Davies Plumbing Trade Supplies Ltd,14718431,active,ltd,M25 1JI,46740,46740,0.766
+Norwich Heating Supplies Ltd,69299645,active,ltd,E9 6VZ,47190,46740,0.397
+Sunderland Pipe & Fittings Ltd,36652586,active,ltd,WC1 1BU,68100,47520,0.538
+YFP Plumbing & Heating Wholesale Ltd,14676961,active,ltd,E10 9UU,82990,43220,0.526
+Smith Sanitary Ware Ltd,10289546,active,ltd,W9 2DM,46740,46740,0.837
+SHY Valve & Fittings Ltd,05925405,active,ltd,EX2 5GD,47190,43220,0.609
+KEJ Sanitary Ware Ltd,84940940,active,ltd,EX1 3GD,43999,46740,0.415
+Robinson Heating Supplies Ltd,94916665,active,ltd,SO18 8OL,45200,43220,0.539
+XQD Pipe & Fittings Ltd,34101783,active,ltd,N18 8GP,46740,46740,0.924
+BQB Pipe & Fittings Ltd,76543051,active,ltd,G6 3DT,"43390,47190",43220,0.543
+Williams Plumbing Merchants Ltd,84370583,active,ltd,DE2 1NN,46740,46740,0.733
+Newport Bathroom Centre Ltd,38077298,active,ltd,W13 6IU,"43999,68100",47520,0.407
+FDY Shower & Bathroom Ltd,78337818,active,ltd,NR4 7UE,"46740,47540","46740,47540",0.724
+Edinburgh Development Co Ltd,20804386,active,ltd,EC1 4WD,68100,,0.039
+Blackburn Thermal Solutions Ltd,88302916,active,ltd,CF10 8UM,43390,43220,0.63
+LLW Gas & Heating Ltd,41987442,active,ltd,DE10 0PT,45200,47520,0.679
+Nottingham Radiator Warehouse Ltd,65988034,active,ltd,CF12 9ZN,43999,47520,0.413
+Liverpool Bathroom Centre Ltd,82804602,active,ltd,NW7 9RM,41100,46740,0.533
+Baker Plumbing Trade Supplies Ltd,66579548,active,ltd,BS4 5WV,46740,46740,0.777
+Bolton Boiler Services Ltd,42708177,active,ltd,CH1 8KF,49410,46740,0.637
+WBQ Plumbers Merchant Ltd,09135295,active,ltd,SO19 1GE,46740,46740,0.812
+QMU Bathroom Centre Ltd,40491631,active,ltd,LE13 3HP,41100,46740,0.489
+Walker & Brown Site Services Ltd,64655158,active,ltd,M6 1CC,96090,,0.222
+CBC Boiler Services Ltd,92332642,active,ltd,BN3 6JZ,"46740,36000","46740,36000",0.832
+Johnson & Thomas Tap & Shower Ltd,95111289,active,ltd,CF9 0NE,"96090,68100",43220,0.397
+HOR Heating & Plumbing Ltd,82390501,active,ltd,N16 4UF,49410,47520,0.621
+Walker & Harris Thermal Solutions Ltd,54643924,active,ltd,SE27 8IA,47520,47520,0.919
+Stewart Maintenance Group Ltd,33691263,active,ltd,S37 3BT,47110,,0.062
+GAU Heating Supplies Ltd,91947393,active,ltd,CH3 1LI,68100,43220,0.535
+Robinson Valve & Fittings Ltd,14141087,active,ltd,LS21 8VZ,"46740,46130","46740,46130",0.932
+Reid Shower & Bathroom Ltd,52053877,active,ltd,NR1 5HK,"41100,41100",43220,0.657
+Sheffield Plumbing & Heating Wholesale Ltd,52410126,active,ltd,E5 3BK,96090,46740,0.517
+Smith & Clarke Plumbing Trade Supplies Ltd,02698142,active,ltd,NW7 7CY,47110,43220,0.554
+PSX Site Services Ltd,14290458,active,ltd,WC2 9KY,43999,,0.01
+Newport Gas & Heating Ltd,06858241,active,ltd,EH16 6KR,49410,43220,0.628
+Reid Plumbing Supplies Ltd,78049595,active,ltd,G31 7LE,47599,43220,0.321
+Ipswich Thermal Solutions Ltd,63350830,active,ltd,LS18 3XD,47190,46740,0.353
+Brighton Engineering Solutions Ltd,31667888,active,ltd,BN11 7KS,43999,,0.094
+Reid Boiler Services Ltd,10196777,active,ltd,WV2 3KY,"47520,43290","47520,43290",0.842
+Murray Plumbing Supplies Ltd,34189803,active,ltd,NG1 9DD,96090,46740,0.568
+Jones & Wright Property Services Ltd,26475673,active,ltd,B30 1RQ,47789,,0.179
+Derby Gas & Heating Ltd,86199362,active,ltd,WC2 1MK,43999,43220,0.428
+Clarke & Murray Boiler Services Ltd,69139880,active,ltd,B20 8PD,47520,47520,0.891
+ROI Bathroom Supplies Ltd,28415205,active,ltd,SE23 5GK,"46740,43220","46740,43220",0.868
+ATI Gas & Heating Ltd,90913412,active,ltd,NW4 4ES,"46740,36000","46740,36000",0.796
+Blackburn Plumbing Merchants Ltd,75045292,active,ltd,E14 8AB,46740,46740,0.921
+Mitchell Pipe & Fittings Ltd,36496015,active,ltd,B7 8EH,43220,43220,0.753
+Sunderland Construction Services Ltd,86282470,active,ltd,WC2 4QD,96090,,0.014
+AYN Radiator Warehouse Ltd,49884978,active,ltd,BN3 5QR,"45200,47110",47520,0.35
+Wilson Plumbing & Heating Wholesale Ltd,24328859,active,ltd,CH2 2AL,68100,43220,0.538
+Baker Boiler Services Ltd,72691040,active,ltd,N8 2MH,"46740,47540","46740,47540",0.931
+Bolton Valve & Fittings Ltd,57306997,active,ltd,LE15 9HW,46740,46740,0.89
+Murray & Clarke Sanitary Ware Ltd,85120751,active,ltd,LE9 7CH,43390,46740,0.409
+EDO Drainage Solutions Ltd,72249799,active,ltd,YO5 2GV,"47599,82990",43220,0.493
+Turner Plumbers Merchant Ltd,92497616,active,ltd,CH5 5CL,47520,47520,0.813
+Smith & Reid Plumbing & Heating Wholesale Ltd,14556182,active,ltd,SO18 7QJ,46740,46740,0.793
+Thomas Plumbing Merchants Ltd,33730796,active,ltd,W8 9PJ,45200,46740,0.311
+FKB Water Systems Ltd,01289289,active,ltd,SO18 7HS,"43220,46730","43220,46730",0.883
+WAB Heating Supplies Ltd,31532691,active,ltd,N3 6ZT,41100,47520,0.582
+Leicester Pipe & Fittings Ltd,99847493,active,ltd,B35 1PA,"43220,35300","43220,35300",0.723
+Exeter Engineering Solutions Ltd,32690501,active,ltd,NW6 1ZJ,96090,,0.271
+Norwich Plumbing & Heating Wholesale Ltd,37632757,active,ltd,BN16 0KR,41100,47520,0.619
+RMX Construction Services Ltd,11843514,active,ltd,EH5 1DQ,41100,,0.176
+Robinson & Reid Heating Supplies Ltd,27738452,active,ltd,SO21 1GO,47789,47520,0.53
+Roberts & Wilson Plumbing Merchants Ltd,73909480,active,ltd,E10 9ZU,"46740,46130","46740,46130",0.832
+Manchester Sanitary Ware Ltd,36570755,active,ltd,EH13 1WW,47599,47520,0.644
+ISO Radiator Warehouse Ltd,57431351,active,ltd,SE13 2QH,82990,47520,0.519
+Douglas Water Systems Ltd,11576383,active,ltd,CH5 9XJ,46740,46740,0.748
+Wright & Baker Commercial Services Ltd,40580505,active,ltd,EX7 1UC,49410,,0.196
+Robinson Bathroom Centre Ltd,19892086,active,ltd,W4 6ZU,82990,43220,0.446
+Walker & Collins Plumbing Merchants Ltd,37361787,active,ltd,G17 3DF,43999,47520,0.348
+Hall & Taylor Construction Services Ltd,32514326,active,ltd,CH3 6LR,47110,,0.223
+King Commercial Services Ltd,76387867,active,ltd,EH4 6JR,47599,,0.225
+UPI Plumbing Merchants Ltd,60345683,active,ltd,SE7 8MX,47110,46740,0.618
+Derby Plumbing & Heating Wholesale Ltd,01965138,active,ltd,M46 0FX,46740,46740,0.915
+Murray & Walker Boiler Services Ltd,82321540,active,ltd,WV2 2ZC,45200,43220,0.31
+WLM Plumbing Trade Supplies Ltd,75077101,active,ltd,W9 6LI,47110,43220,0.375
+Smith Gas & Heating Ltd,19213276,active,ltd,NW8 2BJ,"49410,43390",46740,0.385
+Jones & Brown Infrastructure Ltd Ltd,57500369,active,ltd,YO2 1MU,47599,,0.154
+Stockport Plumbers Merchant Ltd,48469942,active,ltd,W9 6ZT,46740,46740,0.931
+Collins & Reid Plumbing Merchants Ltd,10553585,active,ltd,SE8 4UQ,"82990,82990",47520,0.564
+JTG Water Systems Ltd,86704631,active,ltd,PL2 3MQ,"41100,43999",46740,0.677
+EHZ Shower & Bathroom Ltd,99748972,active,ltd,CH1 5BP,43220,43220,0.826
+King & Green Pipe & Fittings Ltd,58684996,active,ltd,S3 4JY,47520,47520,0.943
+Williams & Smith Plumbing & Heating Wholesale Ltd,91502794,active,ltd,WC1 4OT,41100,47520,0.37
+York Shower & Bathroom Ltd,45559574,active,ltd,NW2 7CX,47599,46740,0.306
+ZYT Radiator Warehouse Ltd,96690391,active,ltd,G26 5LN,46740,46740,0.73
+Murray & Campbell Gas & Heating Ltd,34859311,active,ltd,WC1 7AO,96090,43220,0.7
+Murray & Mitchell Plumbing Merchants Ltd,83228802,active,ltd,WC2 8LE,43390,47520,0.645
+Mitchell & Williams Heating & Plumbing Ltd,44536830,active,ltd,EC1 4JL,47190,47520,0.398
+Smith & Campbell Plumbing & Heating Wholesale Ltd,91301106,active,ltd,G15 3DB,47599,43220,0.694
+Evans Heating & Plumbing Ltd,43339391,active,ltd,SO18 1FY,"43220,25210","43220,25210",0.919
+Birmingham Site Services Ltd,04460153,active,ltd,S1 5UG,82990,,0.097

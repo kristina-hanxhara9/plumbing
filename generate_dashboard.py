@@ -159,12 +159,8 @@ def generate_sample_data(sic_ref_path, output_path, n=100, seed=42):
         rows.append({
             "company_name": _unique_name(rng, PLUMBING_DESCRIPTORS),
             "company_number": _random_company_number(rng),
-            "company_status": _weighted_choice(
-                rng, ["active", "dissolved", "liquidation", "administration"],
-                [85, 10, 3, 2]),
-            "company_type": _weighted_choice(
-                rng, ["ltd", "private-limited-guarant-nsc", "llp", "plc", "other"],
-                [75, 10, 8, 5, 2]),
+            "company_status": "active",
+            "company_type": "ltd",
             "postcode": _random_postcode(rng),
             "sic_codes": ",".join(codes),
             "predicted_sic_codes": ",".join(codes),
@@ -180,12 +176,8 @@ def generate_sample_data(sic_ref_path, output_path, n=100, seed=42):
         rows.append({
             "company_name": _unique_name(rng, PLUMBING_DESCRIPTORS),
             "company_number": _random_company_number(rng),
-            "company_status": _weighted_choice(
-                rng, ["active", "dissolved", "liquidation", "administration"],
-                [85, 10, 3, 2]),
-            "company_type": _weighted_choice(
-                rng, ["ltd", "private-limited-guarant-nsc", "llp", "plc", "other"],
-                [75, 10, 8, 5, 2]),
+            "company_status": "active",
+            "company_type": "ltd",
             "postcode": _random_postcode(rng),
             "sic_codes": ",".join(codes),
             "predicted_sic_codes": predicted,
@@ -198,12 +190,8 @@ def generate_sample_data(sic_ref_path, output_path, n=100, seed=42):
         rows.append({
             "company_name": _unique_name(rng, GENERIC_DESCRIPTORS),
             "company_number": _random_company_number(rng),
-            "company_status": _weighted_choice(
-                rng, ["active", "dissolved", "liquidation", "administration"],
-                [85, 10, 3, 2]),
-            "company_type": _weighted_choice(
-                rng, ["ltd", "private-limited-guarant-nsc", "llp", "plc", "other"],
-                [75, 10, 8, 5, 2]),
+            "company_status": "active",
+            "company_type": "ltd",
             "postcode": _random_postcode(rng),
             "sic_codes": ",".join(codes),
             "predicted_sic_codes": "",
@@ -241,7 +229,7 @@ def analyse_data(df, sic_ref):
     """Compute all chart-ready data structures."""
     results = {}
 
-    # --- 1. SIC code distribution ---
+    # --- 1. SIC code distribution (full breakdown) ---
     all_codes = (
         df["sic_codes"].dropna().astype(str)
         .str.split(",").explode().str.strip()
@@ -251,11 +239,13 @@ def analyse_data(df, sic_ref):
     sic_counts.columns = ["sic_code", "count"]
 
     # Join descriptions
-    sic_ref_clean = sic_ref[["sic_code", "sic_description"]].copy()
+    sic_ref_clean = sic_ref[["sic_code", "sic_description", "section_description"]].copy()
     sic_ref_clean["sic_code"] = sic_ref_clean["sic_code"].astype(str).str.strip()
     sic_counts = sic_counts.merge(sic_ref_clean, on="sic_code", how="left")
     sic_counts["sic_description"] = sic_counts["sic_description"].fillna("Unknown")
+    sic_counts["section_description"] = sic_counts["section_description"].fillna("Unknown")
     sic_counts["label"] = sic_counts["sic_code"] + " - " + sic_counts["sic_description"]
+    sic_counts["pct"] = (sic_counts["count"] / len(df) * 100).round(1)
     results["sic_dist"] = sic_counts
 
     # --- 2. Top SIC for pie ---
@@ -266,13 +256,37 @@ def analyse_data(df, sic_ref):
         top6 = pd.concat([top6, other_row], ignore_index=True)
     results["sic_pie"] = top6
 
-    # --- 3. Classification ---
+    # --- 3. Plumbing vs non-plumbing SIC breakdown ---
+    plumbing_mask = sic_counts["sic_code"].isin(PLUMBING_SIC_CODES)
+    plumbing_count = sic_counts.loc[plumbing_mask, "count"].sum()
+    non_plumbing_count = sic_counts.loc[~plumbing_mask, "count"].sum()
+    results["sic_plumbing_split"] = {
+        "Plumbing SIC": int(plumbing_count),
+        "Non-Plumbing SIC": int(non_plumbing_count),
+    }
+
+    # --- 4. SIC codes per company (how many SIC codes each merchant has) ---
+    sic_per_company = (
+        df["sic_codes"].dropna().astype(str)
+        .str.split(",").apply(lambda x: len([c for c in x if c.strip()]))
+    )
+    sic_per_counts = sic_per_company.value_counts().sort_index().reset_index()
+    sic_per_counts.columns = ["num_sic_codes", "count"]
+    results["sic_per_company"] = sic_per_counts
+
+    # --- 5. SIC section breakdown (industry sector grouping) ---
+    sic_with_section = sic_counts[["section_description", "count"]].copy()
+    section_counts = sic_with_section.groupby("section_description")["count"].sum().reset_index()
+    section_counts = section_counts.sort_values("count", ascending=False)
+    results["sic_sections"] = section_counts
+
+    # --- 6. Classification ---
     df["classification"] = df.apply(classify_row, axis=1)
     class_counts = df["classification"].value_counts().reset_index()
     class_counts.columns = ["classification", "count"]
     results["classification"] = class_counts
 
-    # --- 4. Keyword frequency ---
+    # --- 7. Keyword frequency ---
     kw_freq = {}
     names_lower = df["company_name"].str.lower()
     for kw in PLUMBING_KEYWORDS:
@@ -284,32 +298,24 @@ def analyse_data(df, sic_ref):
     )
     results["keywords"] = kw_df
 
-    # --- 5. Company type ---
-    type_counts = df["company_type"].value_counts().reset_index()
-    type_counts.columns = ["company_type", "count"]
-    results["company_type"] = type_counts
-
-    # --- 6. Company status ---
-    status_counts = df["company_status"].value_counts().reset_index()
-    status_counts.columns = ["company_status", "count"]
-    results["company_status"] = status_counts
-
-    # --- 7. Geographic distribution ---
+    # --- 8. Geographic distribution ---
     df["postcode_area"] = df["postcode"].str.extract(r"^([A-Z]{1,2})", expand=False)
     geo_counts = df["postcode_area"].value_counts().head(15).reset_index()
     geo_counts.columns = ["area", "count"]
     results["geography"] = geo_counts
 
-    # --- 8. Confidence distribution ---
+    # --- 9. Confidence distribution ---
     results["confidence"] = df["max_confidence"]
 
     # --- Summary stats ---
     results["total"] = len(df)
-    results["active_pct"] = round(
-        (df["company_status"] == "active").mean() * 100, 1
-    )
+    results["unique_sic_codes"] = len(sic_counts)
     results["top_sic"] = sic_counts.iloc[0]["label"] if len(sic_counts) > 0 else "N/A"
+    results["top_sic_pct"] = sic_counts.iloc[0]["pct"] if len(sic_counts) > 0 else 0
     results["avg_confidence"] = round(df["max_confidence"].mean(), 3)
+
+    # SIC detail table for HTML
+    results["sic_table"] = sic_counts[["sic_code", "sic_description", "count", "pct"]].copy()
 
     return results
 
@@ -324,109 +330,133 @@ COLORS = {
     "Neither": "#95a5a6",
 }
 
-STATUS_COLORS = {
-    "active": "#2ecc71",
-    "dissolved": "#e74c3c",
-    "liquidation": "#e67e22",
-    "administration": "#f39c12",
-}
-
 
 def generate_dashboard(analysis, output_path):
-    """Build a single-page HTML dashboard with 8 plotly charts."""
+    """Build a single-page HTML dashboard with SIC-focused plotly charts."""
 
-    # 1. SIC Code Distribution (horizontal bar)
+    # 1. SIC Code Distribution (horizontal bar) — LARGE, prominent
     sic = analysis["sic_dist"].sort_values("count", ascending=True)
     fig1 = px.bar(
         sic, x="count", y="label", orientation="h",
-        title="SIC Code Distribution Across Plumbing Merchants",
+        title="<b>SIC Code Distribution</b> — All Codes Across Plumbing Merchants",
         labels={"count": "Number of Companies", "label": "SIC Code"},
         color="count", color_continuous_scale="Blues",
+        text="count",
     )
-    fig1.update_layout(height=max(400, len(sic) * 35), showlegend=False)
+    fig1.update_traces(textposition="outside")
+    fig1.update_layout(height=max(500, len(sic) * 45), showlegend=False)
 
-    # 2. Top SIC Codes pie
+    # 2. Top SIC Codes pie — LARGE with percentages
     pie_data = analysis["sic_pie"]
     fig2 = px.pie(
         pie_data, values="count", names="label",
-        title="Top SIC Code Share",
+        title="<b>Top SIC Code Share</b> — Market Concentration",
         color_discrete_sequence=px.colors.qualitative.Set2,
     )
-    fig2.update_traces(textposition="inside", textinfo="percent+label")
-    fig2.update_layout(height=450)
+    fig2.update_traces(
+        textposition="inside", textinfo="percent+label",
+        textfont_size=12, pull=[0.05] * len(pie_data),
+    )
+    fig2.update_layout(height=500)
 
-    # 3. Classification donut
-    cls = analysis["classification"]
+    # 3. Plumbing vs Non-Plumbing SIC (donut)
+    split = analysis["sic_plumbing_split"]
     fig3 = go.Figure(go.Pie(
+        labels=list(split.keys()), values=list(split.values()),
+        hole=0.5,
+        marker=dict(colors=["#0f3460", "#e74c3c"]),
+        textinfo="label+percent+value",
+        textfont_size=14,
+    ))
+    fig3.update_layout(
+        title="<b>Plumbing vs Non-Plumbing SIC Codes</b>",
+        height=450,
+        annotations=[dict(text="SIC<br>Split", x=0.5, y=0.5,
+                          font_size=16, showarrow=False)],
+    )
+
+    # 4. SIC codes per company (how many SIC codes each merchant has)
+    spc = analysis["sic_per_company"]
+    fig4 = px.bar(
+        spc, x="num_sic_codes", y="count",
+        title="<b>SIC Codes Per Company</b> — How Many Codes Each Merchant Has",
+        labels={"num_sic_codes": "Number of SIC Codes", "count": "Companies"},
+        color="count", color_continuous_scale="Purples",
+        text="count",
+    )
+    fig4.update_traces(textposition="outside")
+    fig4.update_layout(height=400, showlegend=False)
+
+    # 5. SIC Section (industry sector) breakdown — treemap style bar
+    sec = analysis["sic_sections"]
+    fig5 = px.bar(
+        sec, x="section_description", y="count",
+        title="<b>Industry Sector Breakdown</b> — SIC Sections",
+        labels={"section_description": "Industry Sector", "count": "SIC Code Occurrences"},
+        color="count", color_continuous_scale="Teal",
+        text="count",
+    )
+    fig5.update_traces(textposition="outside")
+    fig5.update_layout(height=450, showlegend=False, xaxis_tickangle=-30)
+
+    # 6. Classification donut
+    cls = analysis["classification"]
+    fig6 = go.Figure(go.Pie(
         labels=cls["classification"], values=cls["count"],
         hole=0.45,
         marker=dict(colors=[COLORS.get(c, "#bdc3c7") for c in cls["classification"]]),
+        textinfo="label+percent+value",
     ))
-    fig3.update_layout(title="How Merchants Were Classified", height=450)
+    fig6.update_layout(title="<b>How Merchants Were Classified</b>", height=450)
 
-    # 4. Keyword frequency (horizontal bar)
+    # 7. Keyword frequency (horizontal bar)
     kw = analysis["keywords"]
-    fig4 = px.bar(
-        kw, x="count", y="keyword", orientation="h",
-        title="Plumbing Keywords Found in Company Names (Top 15)",
-        labels={"count": "Occurrences", "keyword": "Keyword"},
-        color="count", color_continuous_scale="Teal",
-    )
-    fig4.update_layout(height=500, yaxis=dict(autorange="reversed"), showlegend=False)
-
-    # 5. Company type pie
-    ct = analysis["company_type"]
-    fig5 = px.pie(
-        ct, values="count", names="company_type",
-        title="Company Type Distribution",
-        color_discrete_sequence=px.colors.qualitative.Pastel,
-    )
-    fig5.update_layout(height=400)
-
-    # 6. Company status bar
-    cs = analysis["company_status"]
-    fig6 = px.bar(
-        cs, x="company_status", y="count",
-        title="Company Status",
-        labels={"company_status": "Status", "count": "Count"},
-        color="company_status",
-        color_discrete_map=STATUS_COLORS,
-    )
-    fig6.update_layout(height=400, showlegend=False)
-
-    # 7. Geographic distribution
-    geo = analysis["geography"]
     fig7 = px.bar(
+        kw, x="count", y="keyword", orientation="h",
+        title="<b>Keyword Analysis</b> — Plumbing Keywords in Company Names (Top 15)",
+        labels={"count": "Occurrences", "keyword": "Keyword"},
+        color="count", color_continuous_scale="Oranges",
+        text="count",
+    )
+    fig7.update_traces(textposition="outside")
+    fig7.update_layout(height=500, yaxis=dict(autorange="reversed"), showlegend=False)
+
+    # 8. Geographic distribution
+    geo = analysis["geography"]
+    fig8 = px.bar(
         geo, x="area", y="count",
-        title="Geographic Distribution by Postcode Area (Top 15)",
+        title="<b>Geographic Distribution</b> — by Postcode Area (Top 15)",
         labels={"area": "Postcode Area", "count": "Count"},
         color="count", color_continuous_scale="Viridis",
+        text="count",
     )
-    fig7.update_layout(height=400, showlegend=False)
+    fig8.update_traces(textposition="outside")
+    fig8.update_layout(height=400, showlegend=False)
 
-    # 8. Confidence histogram
-    fig8 = px.histogram(
+    # 9. Confidence histogram
+    fig9 = px.histogram(
         x=analysis["confidence"], nbins=10,
-        title="ML Confidence Score Distribution",
+        title="<b>ML Confidence Score Distribution</b>",
         labels={"x": "Confidence Score", "y": "Count"},
         color_discrete_sequence=["#8e44ad"],
     )
-    fig8.update_layout(height=400, bargap=0.05)
+    fig9.update_layout(height=400, bargap=0.05)
 
-    # Build HTML
-    figs = [fig1, fig2, fig3, fig4, fig5, fig6, fig7, fig8]
+    # Build chart divs
+    figs = [fig1, fig2, fig3, fig4, fig5, fig6, fig7, fig8, fig9]
     chart_divs = []
     for fig in figs:
         fig.update_layout(
             template="plotly_white",
             font=dict(family="Segoe UI, Helvetica, Arial, sans-serif"),
-            margin=dict(l=20, r=20, t=50, b=20),
+            margin=dict(l=20, r=20, t=60, b=20),
         )
         div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
         chart_divs.append(div)
 
     plotly_js = '<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>'
 
+    # Summary stats bar
     stats = f"""
     <div class="stats-bar">
         <div class="stat-card">
@@ -434,24 +464,69 @@ def generate_dashboard(analysis, output_path):
             <div class="stat-label">Total Companies</div>
         </div>
         <div class="stat-card">
-            <div class="stat-value">{analysis['active_pct']}%</div>
-            <div class="stat-label">Active</div>
+            <div class="stat-value">{analysis['unique_sic_codes']}</div>
+            <div class="stat-label">Unique SIC Codes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{analysis['top_sic_pct']}%</div>
+            <div class="stat-label">Top SIC Share</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">{analysis['avg_confidence']}</div>
             <div class="stat-label">Avg Confidence</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-value" style="font-size:0.9em">{analysis['top_sic'][:30]}</div>
-            <div class="stat-label">Most Common SIC</div>
-        </div>
     </div>
     """
 
+    # SIC detail table
+    tbl = analysis["sic_table"]
+    table_rows = ""
+    for _, r in tbl.iterrows():
+        table_rows += (
+            f"<tr><td><b>{r['sic_code']}</b></td>"
+            f"<td>{r['sic_description']}</td>"
+            f"<td style='text-align:right'>{r['count']}</td>"
+            f"<td style='text-align:right'>{r['pct']}%</td></tr>\n"
+        )
+
+    sic_table_html = f"""
+    <div class="chart-card span-2">
+        <h3 style="margin:0.5rem 0 1rem;color:#0f3460">Complete SIC Code Breakdown</h3>
+        <table class="sic-table">
+            <thead><tr>
+                <th>SIC Code</th><th>Description</th>
+                <th style="text-align:right">Count</th>
+                <th style="text-align:right">% of Companies</th>
+            </tr></thead>
+            <tbody>{table_rows}</tbody>
+        </table>
+    </div>
+    """
+
+    # Layout: SIC charts get full width (span-2), others pair up
+    # Order: SIC dist (wide), SIC pie + plumbing split, SIC per co + sections,
+    #         table (wide), classification + keywords, geo + confidence
     cards_html = ""
-    for i, div in enumerate(chart_divs):
-        span = "span-2" if i in (0, 3) else ""  # Wide charts for bars
-        cards_html += f'<div class="chart-card {span}">{div}</div>\n'
+    layout = [
+        (0, "span-2"),   # SIC distribution — full width
+        (1, ""),         # Top SIC pie
+        (2, ""),         # Plumbing vs non-plumbing
+        (3, ""),         # SIC per company
+        (4, ""),         # Industry sectors
+    ]
+    for idx, span in layout:
+        cards_html += f'<div class="chart-card {span}">{chart_divs[idx]}</div>\n'
+
+    cards_html += sic_table_html  # Full-width SIC table
+
+    layout2 = [
+        (5, ""),         # Classification
+        (6, "span-2"),   # Keywords — full width
+        (7, ""),         # Geography
+        (8, ""),         # Confidence
+    ]
+    for idx, span in layout2:
+        cards_html += f'<div class="chart-card {span}">{chart_divs[idx]}</div>\n'
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -465,10 +540,10 @@ def generate_dashboard(analysis, output_path):
 body {{ font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background: #f0f2f5; color: #333; }}
 .header {{
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    color: white; padding: 2rem; text-align: center;
+    color: white; padding: 2.5rem; text-align: center;
 }}
-.header h1 {{ font-size: 2rem; font-weight: 300; letter-spacing: 1px; }}
-.header p {{ opacity: 0.7; margin-top: 0.5rem; }}
+.header h1 {{ font-size: 2.2rem; font-weight: 300; letter-spacing: 1px; }}
+.header p {{ opacity: 0.7; margin-top: 0.5rem; font-size: 1.1rem; }}
 .stats-bar {{
     display: flex; justify-content: center; gap: 1.5rem;
     padding: 1.5rem; flex-wrap: wrap;
@@ -476,10 +551,10 @@ body {{ font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background: #f0f2
 .stat-card {{
     background: white; border-radius: 12px; padding: 1.2rem 2rem;
     text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    min-width: 160px;
+    min-width: 170px;
 }}
 .stat-value {{ font-size: 1.6rem; font-weight: 700; color: #0f3460; }}
-.stat-label {{ font-size: 0.8rem; color: #888; margin-top: 0.3rem; text-transform: uppercase; }}
+.stat-label {{ font-size: 0.8rem; color: #888; margin-top: 0.3rem; text-transform: uppercase; letter-spacing: 0.5px; }}
 .grid {{
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -490,10 +565,19 @@ body {{ font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background: #f0f2
 }}
 .chart-card {{
     background: white; border-radius: 12px; padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     overflow: hidden;
 }}
 .chart-card.span-2 {{ grid-column: span 2; }}
+.sic-table {{
+    width: 100%; border-collapse: collapse; font-size: 0.9rem;
+}}
+.sic-table th {{
+    background: #0f3460; color: white; padding: 0.7rem 1rem;
+    text-align: left; position: sticky; top: 0;
+}}
+.sic-table td {{ padding: 0.5rem 1rem; border-bottom: 1px solid #eee; }}
+.sic-table tr:hover {{ background: #f8f9fa; }}
 @media (max-width: 900px) {{
     .grid {{ grid-template-columns: 1fr; }}
     .chart-card.span-2 {{ grid-column: span 1; }}
@@ -503,7 +587,7 @@ body {{ font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background: #f0f2
 <body>
 <div class="header">
     <h1>Plumbing Merchants Analysis Dashboard</h1>
-    <p>Interactive analysis of {analysis['total']} sample UK plumbing merchants</p>
+    <p>Interactive analysis of {analysis['total']} UK plumbing merchants — SIC codes, keywords &amp; classification</p>
 </div>
 {stats}
 <div class="grid">
